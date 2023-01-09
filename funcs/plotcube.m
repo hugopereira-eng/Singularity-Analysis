@@ -1,4 +1,5 @@
-function plotcube(varargin)
+%% Function: Draw 3D cube
+function PlotCube(varargin)
 % PLOTCUBE - Display a 3D-cube in the current axes
 %
 %   PLOTCUBE(EDGES,ORIGIN,ALPHA,COLOR) displays a 3D-cube in the current axes
