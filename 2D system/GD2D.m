@@ -1,23 +1,25 @@
-%%%%%%%%%%%%%%%%%%%%%%
-% Triangle array
-%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Gradient Descent with the 2D system
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author: Hugo Pereira
-%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+addpath("..\funcs\")
 
 %% Parameters
-h0 = 1;                 % Angular momentum of each CMG
-beta = 30*pi/180;       % Triangle internal angle
+h0 = 1;                  % Angular momentum of each CMG
+lambda = 30*pi/180;      % Triangle inner angle
 
 %% Plot: Determinant
 % Fix two axis and plot the determinant as function of the other two
 n = 50;  % Number of points
 g1Plot = linspace(-pi,pi,n);
 g2Plot = linspace(-pi,pi,n);
-g3Plot = -1.10;
+g3Plot = 0;
 D = []; G1 = []; G2 = [];
 for i1 = 1:length(g1Plot)
     for i2 = 1:length(g2Plot)
-        J = TriangleJacobian([g1Plot(i1) g2Plot(i2) g3Plot],h0,beta);
+        J = TriangleJacobian([g1Plot(i1) g2Plot(i2) g3Plot],h0,lambda);
         D = [D det(J*J')];
         G1 = [G1 g1Plot(i1)];
         G2 = [G2 g2Plot(i2)];
@@ -42,20 +44,20 @@ axis square
 %% Gradient
 % Compute the first-order derivatives of the determinant
 g = sym('g',[3 1]);
-J = TriangleJacobian(g,h0,beta);
+J = TriangleJacobian(g,h0,lambda);
 eq = det(J*J');
 Dg1 = diff(eq,g(1));
 Dg2 = diff(eq,g(2));
 Dg3 = diff(eq,g(3));
 
 %% Gradient descent
-g1 = -0.6; g2 = 1.69; g3 = 0.64;   % Initial configuration
-J = TriangleJacobian([g1 g2 g3],h0,beta);
+g1 = pi/3; g2 = -2*pi/3; g3 = 0;   % Initial configuration
+J = TriangleJacobian([g1 g2 g3],h0,lambda);
 disp(det(J*J'));
 
-alpha = 0.2;        % Learning Rate
-iterations = 20;    % Number of iterations
-sigma = 0.01;       % Standard deviation (perturbations)
+alpha = 0.1;        % Learning Rate
+iterations = 40;    % Number of iterations
+sigma = 0.001;       % Standard deviation (perturbations)
 G1 = g1; G2 = g2; G3 = g3;
 D = det(J*J');
 for i = 1:iterations
@@ -70,7 +72,7 @@ for i = 1:iterations
     g2 = g2 + normrnd(0,sigma);
     g3 = g3 + normrnd(0,sigma);
     
-    J = TriangleJacobian([g1 g2 g3],h0,beta);
+    J = TriangleJacobian([g1 g2 g3],h0,lambda);
 
     G1 = [G1 g1]; G2 = [G2 g2]; G3 = [G3 g3];
     D = [D det(J*J')];
@@ -107,7 +109,7 @@ end
 
 h1h = []; index1h = []; h3h = []; index3h = [];
 for i = 1:length(gp)
-    aux = TriangleMomentum(gp(:,i),h0,beta);
+    aux = TriangleMomentum(gp(:,i),h0,lambda);
     if round(norm(aux)) == h0
         h1h = [h1h aux];
         index1h = [index1h i];
@@ -124,7 +126,7 @@ scatter3(gp(1,index3h),gp(2,index3h),gp(3,index3h), 10,'fill','g')
 hold on
 plot3(G1,G2,G3,'r-*','LineWidth',1)
 hold on
-plotcube([2*pi 2*pi 2*pi],[-pi -pi -pi],0,[0 0 1]);
+PlotCube([2*pi 2*pi 2*pi],[-pi -pi -pi],0,[0 0 1]);
 xlabel('$\gamma_1$ [rad]','Interpreter','latex','FontSize',15);
 ylabel('$\gamma_2$ [rad]','Interpreter','latex','FontSize',15);
 zlabel('$\gamma_3$ [rad]','Interpreter','latex','FontSize',15);
@@ -135,14 +137,3 @@ axis equal
 grid off
 box on
 view(335,20)
-
-%% Function: Triangle Jacobian
-function J = TriangleJacobian(g,h0,beta)
-J = h0*[-sin(beta + g(1))   cos(g(2))  -sin(beta - g(3));
-         cos(beta + g(1))   sin(g(2))  -cos(beta - g(3))];
-end
-%% Function: Triangle Momentum
-function h = TriangleMomentum(g,h0,beta)
-h = h0*[cos(beta + g(1)) + sin(g(2)) - cos(beta - g(3));
-        sin(beta + g(1)) - cos(g(2)) + sin(beta - g(3))];
-end

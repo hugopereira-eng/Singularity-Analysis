@@ -1,38 +1,37 @@
-close all
-clear
-clc
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 3-CMG determinant expression
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Author: Hugo Pereira
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+addpath("..\funcs\")
 
 %% Parameters
-
-h0 = 1;
-beta = 30*pi/180;
+h0 = 1;                  % Angular momentum of each CMG
+lambda = 30*pi/180;      % Triangle inner angle
 
 %% Symbolic determinant expression
-
 g1 = sym('g1', 'real');
 g2 = sym('g2', 'real');
 g3 = sym('g3', 'real');
 g = [g1,g2,g3];  
-J = computeJac(g,h0,beta );
-% disp(simplify(det(J*J')))
+J = TriangleJacobian(g,h0,lambda);
+disp(simplify(det(J*J')))
 r = [J(:,2) J(:,3)];
 disp(simplify(det(r)^2))
 
-%% Try values
-
+%% Test
 g = [60; 0; 120]*pi/180;
-J = computeJac(g,h0,beta);
+J = TriangleJacobian(g,h0,lambda);
 fprintf("Determinant: %d \n",det(J*J'));
 
 %% SVD
-
-g = [0; 2*pi/3; -2*pi/3];
-J = computeJac(g,h0,beta);
+g = [pi/3; 0; -pi/3];
+J = TriangleJacobian(g,h0,lambda);
 disp(J);
 [U,S,V] = svd(J);
 
 %% Gamma
-
 gp = [];
 g3 = -pi:0.001:pi;
 for i = 1:length(g3)
@@ -55,11 +54,10 @@ for i = 1:length(g3)
 end
 
 %% Angular momentum
-
 h1h = []; index1h = [];
 h3h = []; index3h = [];
 for i = 1:length(gp)
-    aux = MomentumCompute(gp(:,i),h0,beta);
+    aux = TriangleMomentum(gp(:,i),h0,lambda);
     if round(norm(aux)) == h0
         h1h = [h1h aux];
         index1h = [index1h i];
@@ -71,13 +69,12 @@ end
 
 
 %% Plot - Gamma plot
-
 figure
 scatter3(gp(1,index1h),gp(2,index1h),gp(3,index1h), 10,'fill','b')
 hold on
 scatter3(gp(1,index3h),gp(2,index3h),gp(3,index3h), 10,'fill','g')
 hold on
-plotcube([2*pi 2*pi 2*pi],[-pi -pi -pi],0,[0 0 1]);
+PlotCube([2*pi 2*pi 2*pi],[-pi -pi -pi],0,[0 0 1]);
 xlabel('$\gamma_1$ [rad]','Interpreter','latex','FontSize',15);
 ylabel('$\gamma_2$ [rad]','Interpreter','latex','FontSize',15);
 zlabel('$\gamma_3$ [rad]','Interpreter','latex','FontSize',15);
@@ -89,19 +86,7 @@ grid off
 box on
 view(335,20)
 
-%% Plane x+y+z = 0
-
-hold on
-planeIndex = [];
-for i = 1:length(gp)
-    if (round(gp(1,i) + gp(2,i) + gp(3,i),2) == 0)
-        planeIndex = [planeIndex gp(:,i)];
-    end
-end
-scatter3(planeIndex(1,:),planeIndex(2,:),planeIndex(3,:), 15,'fill')
-
-%% Plot - Singular angular momentum
-
+%% Plot: Momentum envelope
 figure
 scatter(h1h(1,:),h1h(2,:), 10,'fill','b')
 hold on
@@ -118,20 +103,18 @@ grid off
 box off
 
 %% Optimal energy solution
-
-% torque = [6;6];
-% v1 = [-2*pi/3,-pi,-pi/3];
-% v2 = [2*pi/3,pi/3,pi];
-% pt = [2*pi/3,2*pi/3,pi];
-% distance = point_to_line(pt,v1,v2);
-% J = computeJac(pt,h0,beta);
-% gDot = J'/(J*J')*torque;
-% disp(gDot);
-% disp(norm(gDot));
-% disp(distance);
+torque = [6;6];
+v1 = [-2*pi/3,-pi,-pi/3];
+v2 = [2*pi/3,pi/3,pi];
+pt = [2*pi/3,2*pi/3,pi];
+distance = Point2Line(pt,v1,v2);
+J = TriangleJacobian(pt,h0,lambda);
+gDot = J'/(J*J')*torque;
+disp(gDot);
+disp(norm(gDot));
+disp(distance);
 
 %% Singularity
-
 % Desired torque
 % torque = [sqrt(18);sqrt(18)];        
 torque = [3;3];  
@@ -154,9 +137,9 @@ NormInf  = zeros(1,length(indexvec));
 for i = 1:length(indexvec)
     pt = [-pi/3;pi/3;0] + indexvec(i)*[pi/3;-2*pi/3;pi/3];
     gimbal(:,i) = pt;
-    d1(i) = point_to_line(pt',v11,v12);
-    d2(i) = point_to_line(pt',v21,v22)  ;
-    J = computeJac(pt,h0,beta);
+    d1(i) = Point2Line(pt',v11,v12);
+    d2(i) = Point2Line(pt',v21,v22)  ;
+    J = TriangleJacobian(pt,h0,lambda);
     gDot(:,i) = J'/(J*J')*torque;
     Norm2(i) = norm(gDot(:,i),2);
     NormInf(i) = norm(gDot(:,i),"inf");
@@ -172,7 +155,7 @@ scatter3(gimbal(1,:),gimbal(2,:),gimbal(3,:), 10,'fill','r')
 hold on
 scatter3([-pi/3 0],[pi/3 -pi/3],[0 pi/3], 50,'fill','k')
 hold on
-plotcube([2*pi 2*pi 2*pi],[-pi -pi -pi],0,[0 0 1]);
+PlotCube([2*pi 2*pi 2*pi],[-pi -pi -pi],0,[0 0 1]);
 xlabel('$\gamma_1$ [rad]','Interpreter','latex','FontSize',15)
 ylabel('$\gamma_2$ [rad]','Interpreter','latex','FontSize',15)
 zlabel('$\gamma_3$ [rad]','Interpreter','latex','FontSize',15)
@@ -216,22 +199,3 @@ legend('$|| \dot{\gamma} ||_{\infty}$',...
 ylim([0 10])
 grid off
 box off
-
-%% Functions
-
-function h = MomentumCompute(g,h0,beta)
-h = h0*[cos(beta + g(1)) + sin(g(2)) - cos(beta - g(3));
-        sin(beta + g(1)) - cos(g(2)) + sin(beta - g(3))];
-end
-
-function J = computeJac(g,h0,beta)
-J = h0*[-sin(beta + g(1))   cos(g(2))  -sin(beta - g(3));
-         cos(beta + g(1))   sin(g(2))  -cos(beta - g(3))];
-end
-
-function d = point_to_line(pt, v1, v2)
-      a = v2 - v1;
-      b = pt - v1;
-      d = norm(cross(a,b)) / norm(a);
-end
-

@@ -4,16 +4,14 @@
 % Author: Hugo Pereira
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-addpath("funcs\")
-
 %% Parameters
 h0 = 1;                  % Angular momentum of each CMG
-alpha = 54.73*pi/180;    % Triangle inner angle
+lambda = 30*pi/180;      % Triangle inner angle
 
 %% Ellipse - plots
-% g = [0;2*pi/3;-2*pi/3];     % Non-singular configuration
-g = [0;0;0];                % Singularity
-J = TriangleJacobianExtended(g,h0,alpha);
+g = [0;2*pi/3;-2*pi/3];     % Non-singular configuration
+% g = [0;0;0];                % Singularity
+J = TriangleJacobianExtended(g,h0,lambda);
 
 % SVD
 [S,Sigma,V] = svd(J);
@@ -43,9 +41,9 @@ C = sqrt(Xs.^2+Ys.^2+Zs.^2);
 
 mesh(Xs,Ys,Zs,C);
 
-xlabel('$$x$$ axis','Interpreter','latex','FontSize',15)
-ylabel('$$y$$ axis','Interpreter','latex','FontSize',15)
-zlabel('$$z$$ axis','Interpreter','latex','FontSize',15)
+xlabel('$$x$$-axis','Interpreter','latex','FontSize',15)
+ylabel('$$y$$-axis','Interpreter','latex','FontSize',15)
+zlabel('$$z$$-axis','Interpreter','latex','FontSize',15)
 title('Principal Components Visualization','FontSize',15)
 subtitle('Triangular array','FontSize',12)
 grid off
@@ -59,9 +57,9 @@ c.Label.FontSize = 12;
 
 view(0, 90)
 
-%% Jacobian
-function J = TriangleJacobianExtended(g,h0,alpha)
-J = h0*[-sin(alpha + g(1))   cos(g(2))  -sin(alpha - g(3))  0;
-         cos(alpha + g(1))   sin(g(2))  -cos(alpha - g(3))  0;
+%% Function: Extended triangle Jacobian
+function J = TriangleJacobianExtended(g,h0,lambda)
+J = h0*[-sin(lambda + g(1))   cos(g(2))  -sin(lambda - g(3))  0;
+         cos(lambda + g(1))   sin(g(2))  -cos(lambda - g(3))  0;
                         0           0                  0  0];
 end

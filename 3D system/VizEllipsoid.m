@@ -4,7 +4,7 @@
 % Author: Hugo Pereira
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-addpath("funcs\")
+addpath("..\funcs\")
 
 %% Parameters
 h0 = 1;                 % Angular momentum of each CMG
@@ -12,11 +12,16 @@ beta = 54.73*pi/180;    % Pyramid skew angle
 
 %% Ellipsoid - plots
 
+% Roof array
 % g = [pi/2;0;0;-pi/2];      % Rank-1
 % g = [pi/2;0;0;0];          % Rank-2
 % g = [0;0;0;0];             % Rank-3
-J = RoofJacobian(g,h0);
-% J = PyramidJacobian(g,h0);
+% J = RoofJacobian(g,h0);
+
+% Pyramid array
+% g = [pi/2;pi;3*pi/2;0];      % Rank-2
+g = [0;0;0;0];             % Rank-3
+J = PyramidJacobian(g,h0,beta);
 
 % SVD
 [S,Sigma,V] = svd(J);
@@ -52,7 +57,8 @@ xlabel('$$x$$ axis','Interpreter','latex','FontSize',15)
 ylabel('$$y$$ axis','Interpreter','latex','FontSize',15)
 zlabel('$$z$$ axis','Interpreter','latex','FontSize',15)
 title('Principal Components Visualization','FontSize',15)
-subtitle('Roof array','FontSize',12)
+% subtitle('Roof array','FontSize',12)
+subtitle('Pyramid array','FontSize',12)
 grid off
 box off
 axis square

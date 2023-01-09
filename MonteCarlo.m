@@ -6,6 +6,10 @@
 
 addpath("funcs\")
 
+%% Parameters
+h0 = 1;                 % Angular momentum of each CMG
+beta = 54.73*pi/180;    % Pyramid skew angle
+
 %% Gradient
 g = sym('g',[4 1]);
 J = PyramidJacobian(g,h0,beta);
@@ -17,7 +21,7 @@ Dg4 = diff(eq,g(4));
 
 %% Random set
 % Uniformly generated samples
-n = 10;
+n = 5;
 samples = n^4;
 G = zeros(4,samples);
 ind = 0;
@@ -36,8 +40,8 @@ for i1 = 1:n
 end
 
 %% Gradient descent
-alpha = 0.2;         % learning rate
-sigma = 0.01;        % Standard deviation (perturbations)
+alpha = 0.1;         % learning rate
+sigma = 0.001;       % Standard deviation (perturbations)
 I = zeros(1,samples);
 hbar = waitbar(0,'Simulation Progress');
 for i = 1:length(G)
@@ -45,7 +49,7 @@ for i = 1:length(G)
     J = PyramidJacobian([g1 g2 g3 g4],h0,beta);
     D = det(J*J');
     iterations = 0;
-    while D(iterations+1) > 10e-2
+    while D(iterations+1) > 10e-3
         % Update
         t1 = g1 - alpha*double(subs(Dg1));
         t2 = g2 - alpha*double(subs(Dg2));

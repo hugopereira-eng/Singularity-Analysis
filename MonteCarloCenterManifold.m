@@ -8,11 +8,11 @@ addpath("funcs\")
 
 %% Parameters
 h0 = 1;                  % Angular momentum of each CMG
-beta = 30*pi/180;        % Triangle inner angle
+lambda = 30*pi/180;      % Triangle inner angle
 
 %% Gradient
 g = sym('g',[3 1]);
-J = TriangleJacobian(g,h0,beta);
+J = TriangleJacobian(g,h0,lambda);
 eq = det(J*J');
 Dg1 = diff(eq,g(1));
 Dg2 = diff(eq,g(2));
@@ -28,25 +28,25 @@ for i1 = 1:n
     for i2 = 1:n
         for i3 = 1:n
             ind = ind + 1;
-            G(:,ind) = [-pi/2 + pi*rand;
-                        -pi/2 + pi*rand;
-                        -pi/2 + pi*rand];
+            G(:,ind) = [-pi + 2*pi*rand;
+                        -pi + 2*pi*rand;
+                        -pi + 2*pi*rand];
         end
     end
 end
 
 %% Gradient descent
-alpha = 0.05;         % learning rate
-sigma = 0.0001;       % Standard deviation (perturbations)
+alpha = 0.1;         % Learning rate
+sigma = 0.0001;      % Standard deviation (perturbations)
 d = zeros(1,samples);
 GD = zeros(3,samples);
 hbar = waitbar(0,'Simulation Progress');
 for i = 1:length(G)
     g1 = G(1,i); g2 = G(2,i); g3 = G(3,i);
-    J = TriangleJacobian([g1 g2 g3],h0,beta);
+    J = TriangleJacobian([g1 g2 g3],h0,lambda);
     D = det(J*J');
     iterations = 0;
-    while D(iterations+1) > 10e-5
+    while D(iterations+1) > 10e-3
         % Update
         t1 = g1 - alpha*double(subs(Dg1));
         t2 = g2 - alpha*double(subs(Dg2));
@@ -58,7 +58,7 @@ for i = 1:length(G)
         g2 = g2 + normrnd(0,sigma);
         g3 = g3 + normrnd(0,sigma);
         
-        J = TriangleJacobian([g1 g2 g3],h0,beta);
+        J = TriangleJacobian([g1 g2 g3],h0,lambda);
         D = [D det(J*J')];
 
         iterations = iterations + 1;
@@ -74,8 +74,8 @@ v = [1;1;1];                         % Vector director
 As  = v*v'/(v'*v);                   % Projection matrix
 GC = zeros(3,samples);
 for i = 1:length(G)
-    g0 = findClosestLine(G(:,i));
-    bs  = (eye(3) -As)*g0;        % Offset vector 
+    g0 = FindClosestLine(G(:,i));
+    bs  = (eye(3) -As)*g0;           % Offset vector 
     gs0 = As*G(:,i) + bs;
     GC(:,i) = gs0;
 end

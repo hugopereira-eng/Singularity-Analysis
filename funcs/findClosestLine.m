@@ -48,16 +48,10 @@ list   = [   -pi/3,     pi/3,  0;
 v = [1;1;1];   % Vector director
 dmin = 9999;
 for i = 1:length(list)
-    d = PointToLine(g, list(i,:)', list(i,:)' + v);
+    d = Point2Line(g, list(i,:)', list(i,:)' + v);
     if (d < dmin)
         dmin = d;
         p = list(i,:)';
     end
 end
-end
-
-function d = PointToLine(pt, v1, v2)
-      a = v2 - v1;
-      b = pt - v1;
-      d = norm(cross(a,b)) / norm(a);
 end
