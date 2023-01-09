@@ -1,10 +1,16 @@
-%% Singular momentum surface
+%%%%%%%%%%%%%%%%%%%%%%
+% Pyramid array
+%%%%%%%%%%%%%%%%%%%%%%
+% Author: Hugo Pereira
+%%%%%%%%%%%%%%%%%%%%%%
 
+%% Parameters
+h0 = 1;                 % Angular momentum of each CMG
+beta = 54.73*pi/180;    % Pyramid skew angle
+
+%% Singular momentum space
 g1 = sym('g1', 'real');
 g2 = sym('g2', 'real');
-
-beta = 54.73*pi/180;
-h0 = 0.2288;
 g3 = linspace(-pi,pi,10);
 g4 = linspace(-pi,pi,10);
 s = [];
@@ -26,9 +32,7 @@ for i3 = 1:length(g3)
     end
 end
 
-
-%% Plot - singular momentum surface
-
+%% Plot: singular momentum space
 h_t = [];
 g32 = [];
 for i = 1:10
@@ -46,31 +50,30 @@ for i = 1:100
     h = compute_h(h0, beta, g);
     h_t = [h_t h];
 end
-C = sqrt(h_t(1,:).^2+h_t(2,:).^2+h_t(3,:).^2);
+C = real(sqrt(h_t(1,:).^2+h_t(2,:).^2+h_t(3,:).^2));
 figure
 scatter3(h_t(1,:),h_t(2,:),h_t(3,:), 10, C, 'fill')
 c = colorbar;
 colormap default;
 c.Label.String = 'Magnitude |h|';
-xlabel('x direction [Nms]')
-ylabel('y direction [Nms]')
-zlabel('z direction [Nms]')
-title('Angular momentum singularities')
-grid on
+xlabel('$\dot{h}_x$ [Nms]','Interpreter','latex','FontSize',15);
+ylabel('$\dot{h}_y$ [Nms]','Interpreter','latex','FontSize',15);
+zlabel('$\dot{h}_z$ [Nms]','Interpreter','latex','FontSize',15);
+title('Singular momentum space','Interpreter','latex','FontSize',15);
+subtitle('Pyramid array','FontSize',12);
+xlim([-pi pi])
+ylim([-pi pi])
+zlim([-pi pi])
+grid off
+axis equal
 
 %% Gamma
-
 g1 = sym('g1', 'real');
 g2 = sym('g2', 'real');
 
-
-beta = 54.73*pi/180;   % 54.73
-% h0 = 4;
-n = 100;
+n = 1000;
 g3 = linspace(-pi,pi,n);
-% g4 = pi/3;
-g4 = 100*pi/180;
-P = SetupParameters;
+g4 = 0*pi/180;
 s = [];
 for i3 = 1:length(g3)
     D1 = sin(beta)*(sin(g2)*sin(g3(i3))*cos(g4) + cos(g2)*sin(g3(i3))*sin(g4) + ...
@@ -86,10 +89,6 @@ for i3 = 1:length(g3)
     s1 = [double(solg1(1)) double(solg1(2)) double(solg1(3)) double(solg1(4))];
     s2 = [double(solg2(1)) double(solg2(2)) double(solg1(3)) double(solg1(4))];
     s = real([s [s1; s2]]);
-%     sol = [double(solg1), double(solg2)];
-%     m = Manipulability([sol(1), sol(2), g3, g4],P);
-%     disp(sol)
-%     disp(m),
     disp(i3)
 end
 
@@ -131,124 +130,6 @@ box on
 % view(0,90)
 
 %%
-% hold on
-% g1 = s10(1,1:4:end);
-% g2 = s10(2,1:4:end);
-% scatter3(g1,g2,g3, 10,'fill','r')
-% hold on
-% g1 = s10(1,2:4:end);
-% g2 = s10(2,2:4:end);
-% scatter3(g1,g2,g3, 10,'fill','r')
-% hold on
-% g1 = s10(1,3:4:end);
-% g2 = s10(2,3:4:end);
-% scatter3(g1,g2,g3, 10,'fill','r')
-% hold on
-% g1 = s10(1,4:4:end);
-% g2 = s10(2,4:4:end);
-% scatter3(g1,g2,g3, 10,'fill','r')
-
-% hold on
-% g1 = s_5(1,1:4:end);
-% g2 = s_5(2,1:4:end);
-% scatter3(g1,g2,g3, 10,'fill','g')
-% hold on
-% g1 = s_5(1,2:4:end);
-% g2 = s_5(2,2:4:end);
-% scatter3(g1,g2,g3, 10,'fill','g')
-% hold on
-% g1 = s_5(1,3:4:end);
-% g2 = s_5(2,3:4:end);
-% scatter3(g1,g2,g3, 10,'fill','g')
-% hold on
-% g1 = s_5(1,4:4:end);
-% g2 = s_5(2,4:4:end);
-% scatter3(g1,g2,g3, 10,'fill','g')
-
-% hold on
-% g1 = s_10(1,1:4:end);
-% g2 = s_10(2,1:4:end);
-% scatter3(g1,g2,g3, 10,'fill','k')
-% hold on
-% g1 = s_10(1,2:4:end);
-% g2 = s_10(2,2:4:end);
-% scatter3(g1,g2,g3, 10,'fill','k')
-% hold on
-% g1 = s_10(1,3:4:end);
-% g2 = s_10(2,3:4:end);
-% scatter3(g1,g2,g3, 10,'fill','k')
-% hold on
-% g1 = s_10(1,4:4:end);
-% g2 = s_10(2,4:4:end);
-% scatter3(g1,g2,g3, 10,'fill','k')
-
-% hold on
-% g1 = s5(1,1:4:end);
-% g2 = s5(2,1:4:end);
-% scatter3(g1,g2,g3, 10,'fill','m')
-% hold on
-% g1 = s5(1,2:4:end);
-% g2 = s5(2,2:4:end);
-% scatter3(g1,g2,g3, 10,'fill','m')
-% hold on
-% g1 = s5(1,3:4:end);
-% g2 = s5(2,3:4:end);
-% scatter3(g1,g2,g3, 10,'fill','m')
-% hold on
-% g1 = s5(1,4:4:end);
-% g2 = s5(2,4:4:end);
-% scatter3(g1,g2,g3, 10,'fill','m')
-% 
-% hold on
-% g1 = s0(1,1:4:end);
-% g2 = s0(2,1:4:end);
-% scatter3(g1,g2,g3, 10,'fill','y')
-% hold on
-% g1 = s0(1,2:4:end);
-% g2 = s0(2,2:4:end);
-% scatter3(g1,g2,g3, 10,'fill','y')
-% hold on
-% g1 = s0(1,3:4:end);
-% g2 = s0(2,3:4:end);
-% scatter3(g1,g2,g3, 10,'fill','y')
-% hold on
-% g1 = s0(1,4:4:end);
-% g2 = s0(2,4:4:end);
-% scatter3(g1,g2,g3, 10,'fill','y')
-
-% hold on
-% g1 = s180(1,1:4:end);
-% g2 = s180(2,1:4:end);
-% scatter3(g1,g2,g3, 10,'fill','g')
-% hold on
-% g1 = s180(1,2:4:end);
-% g2 = s180(2,2:4:end);
-% scatter3(g1,g2,g3, 10,'fill','g')
-% hold on
-% g1 = s180(1,3:4:end);
-% g2 = s180(2,3:4:end);
-% scatter3(g1,g2,g3, 10,'fill','g')
-% hold on
-% g1 = s180(1,4:4:end);
-% g2 = s180(2,4:4:end);
-% scatter3(g1,g2,g3, 10,'fill','g')
-% 
-% hold on
-% g1 = s170(1,1:4:end);
-% g2 = s170(2,1:4:end);
-% scatter3(g1,g2,g3, 10,'fill','y')
-% hold on
-% g1 = s170(1,2:4:end);
-% g2 = s170(2,2:4:end);
-% scatter3(g1,g2,g3, 10,'fill','y')
-% hold on
-% g1 = s170(1,3:4:end);
-% g2 = s170(2,3:4:end);
-% scatter3(g1,g2,g3, 10,'fill','y')
-% hold on
-% g1 = s170(1,4:4:end);
-% g2 = s170(2,4:4:end);
-% scatter3(g1,g2,g3, 10,'fill','y')
 
 hold on
 g1 = s90(1,1:4:end);

@@ -14,7 +14,7 @@ n = 50;  % Number of points
 g1Plot = linspace(-pi,pi,n);
 g2Plot = linspace(-pi,pi,n);
 g3Plot = 0;
-g4Plot = 0;
+g4Plot = -pi/3;
 D = []; G1 = []; G2 = [];
 for i1 = 1:length(g1Plot)
     for i2 = 1:length(g2Plot)

@@ -13,7 +13,7 @@ beta = 30*pi/180;       % Triangle internal angle
 n = 50;  % Number of points
 g1Plot = linspace(-pi,pi,n);
 g2Plot = linspace(-pi,pi,n);
-g3Plot = 0;
+g3Plot = -1.10;
 D = []; G1 = []; G2 = [];
 for i1 = 1:length(g1Plot)
     for i2 = 1:length(g2Plot)
@@ -28,7 +28,7 @@ G2s = reshape(G2,n,n);
 Ds = reshape(D,n,n);
 
 figure
-surf(Xs,Ys,Ds)
+surf(G1s,G2s,Ds)
 xlabel('$\gamma_1$ [rad]','Interpreter','latex','FontSize',15);
 ylabel('$\gamma_2$ [rad]','Interpreter','latex','FontSize',15);
 zlabel('$\det$(JJ$^T$)','Interpreter','latex','FontSize',15);
@@ -49,7 +49,7 @@ Dg2 = diff(eq,g(2));
 Dg3 = diff(eq,g(3));
 
 %% Gradient descent
-g1 = pi/3; g2 = 0; g3 = pi/4;   % Initial configuration
+g1 = -0.6; g2 = 1.69; g3 = 0.64;   % Initial configuration
 J = TriangleJacobian([g1 g2 g3],h0,beta);
 disp(det(J*J'));
 
@@ -72,7 +72,7 @@ for i = 1:iterations
     
     J = TriangleJacobian([g1 g2 g3],h0,beta);
 
-    G1 = [G1 g1]; G2 = [G2 g2]; G3 = [G3 g3]; G4 = [G4 g4];
+    G1 = [G1 g1]; G2 = [G2 g2]; G3 = [G3 g3];
     D = [D det(J*J')];
 end
 
