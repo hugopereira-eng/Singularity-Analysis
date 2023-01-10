@@ -37,7 +37,7 @@ end
 
 %% Gradient descent
 alpha = 0.1;         % Learning rate
-sigma = 0.0001;      % Standard deviation (perturbations)
+sigma = 0.00001;     % Standard deviation (perturbations)
 d = zeros(1,samples);
 GD = zeros(3,samples);
 hbar = waitbar(0,'Simulation Progress');
@@ -68,8 +68,7 @@ for i = 1:length(G)
 end
 close(hbar)
 
-%% Closest
-
+%% Closest singularity - truth
 v = [1;1;1];                         % Vector director
 As  = v*v'/(v'*v);                   % Projection matrix
 GC = zeros(3,samples);
@@ -81,10 +80,17 @@ for i = 1:length(G)
 end
 
 %% Error
-
 error = GD - GC;
 e = zeros(1,samples);
 for i = 1:length(G)
     e(i) = norm(error(:,i),2);
 end
-plot(e)
+
+%% Results
+plot(1:samples,e,'r','LineWidth',1)
+xlabel('samples','Interpreter','latex','FontSize',15);
+ylabel('error [rad]','Interpreter','latex','FontSize',15);
+title('Error evolution','Interpreter','latex','FontSize',15);
+box off
+fprintf("Mean: %d \n",mean(e));
+fprintf("Max: %d \n",max(e));
