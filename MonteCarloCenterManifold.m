@@ -20,24 +20,18 @@ Dg3 = diff(eq,g(3));
 
 %% Random set
 % Uniformly generated samples
-n = 10;
-samples = n^3;
+samples = 1000;
 G = zeros(3,samples);
 ind = 0;
-for i1 = 1:n
-    for i2 = 1:n
-        for i3 = 1:n
-            ind = ind + 1;
-            G(:,ind) = [-pi + 2*pi*rand;
-                        -pi + 2*pi*rand;
-                        -pi + 2*pi*rand];
-        end
-    end
+for i = 1:samples
+    G(:,i) = [-pi + 2*pi*rand;
+                -pi + 2*pi*rand;
+                -pi + 2*pi*rand];
 end
 
 %% Gradient descent
 alpha = 0.1;         % Learning rate
-sigma = 0.00001;     % Standard deviation (perturbations)
+sigma = 0.001;       % Standard deviation (perturbations)
 d = zeros(1,samples);
 GD = zeros(3,samples);
 hbar = waitbar(0,'Simulation Progress');
@@ -90,7 +84,7 @@ end
 plot(1:samples,e,'r','LineWidth',1)
 xlabel('samples','Interpreter','latex','FontSize',15);
 ylabel('error [rad]','Interpreter','latex','FontSize',15);
-title('Error evolution','Interpreter','latex','FontSize',15);
+title('Error','Interpreter','latex','FontSize',15);
 box off
 fprintf("Mean: %d \n",mean(e));
 fprintf("Max: %d \n",max(e));

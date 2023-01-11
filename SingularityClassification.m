@@ -49,7 +49,7 @@ H = [Dg11 Dg12 Dg13 Dg14;
 
 
 %% Evaluate
-g1 = -1.08994; g2 = -1.98754; g3 = pi/4; g4 = -pi/4; 
+g1 = 0; g2 = -2*pi/3; g3 = pi/6; g4 = -2*pi/3; 
 
 Gv = double(subs(G));
 Hv = double(subs(H));

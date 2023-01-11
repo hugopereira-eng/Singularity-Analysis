@@ -21,22 +21,14 @@ Dg4 = diff(eq,g(4));
 
 %% Random set
 % Uniformly generated samples
-n = 5;
-samples = n^4;
+samples = 1000;
 G = zeros(4,samples);
 ind = 0;
-for i1 = 1:n
-    for i2 = 1:n
-        for i3 = 1:n
-            for i4 = 1:n
-                ind = ind + 1;
-                G(:,ind) = [-pi + 2*pi*rand;
-                            -pi + 2*pi*rand;
-                            -pi + 2*pi*rand;
-                            -pi + 2*pi*rand];
-            end
-        end
-    end
+for i = 1:samples
+    G(:,i) = [-pi + 2*pi*rand;
+                -pi + 2*pi*rand;
+                -pi + 2*pi*rand;
+                -pi + 2*pi*rand];
 end
 
 %% Gradient descent
@@ -68,6 +60,7 @@ for i = 1:length(G)
     end
     I(i) = iterations;
     waitbar(i/length(G), hbar);
+    disp(i)
 end
 close(hbar)
 
