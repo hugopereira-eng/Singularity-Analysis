@@ -44,7 +44,7 @@ mesh(Xs,Ys,Zs,C);
 xlabel('$$x$$-axis','Interpreter','latex','FontSize',15)
 ylabel('$$y$$-axis','Interpreter','latex','FontSize',15)
 zlabel('$$z$$-axis','Interpreter','latex','FontSize',15)
-title('Principal Components Visualization','FontSize',15)
+title('Principal components visualization','FontSize',15)
 subtitle('Triangular array','FontSize',12)
 grid off
 box off

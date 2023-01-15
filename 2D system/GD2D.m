@@ -51,7 +51,8 @@ Dg2 = diff(eq,g(2));
 Dg3 = diff(eq,g(3));
 
 %% Gradient descent
-g1 = pi/3; g2 = -2*pi/3; g3 = 0;   % Initial configuration
+% g1 = pi/3; g2 = -2*pi/3; g3 = 0;   % Initial configuration
+g1 = G(1,2); g2 = G(2,2); g3 = G(3,2);   % Initial configuration
 J = TriangleJacobian([g1 g2 g3],h0,lambda);
 disp(det(J*J'));
 

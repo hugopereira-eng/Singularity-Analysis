@@ -17,8 +17,16 @@ g3 = sym('g3', 'real');
 g = [g1,g2,g3];  
 J = TriangleJacobian(g,h0,lambda);
 disp(simplify(det(J*J')))
-r = [J(:,2) J(:,3)];
-disp(simplify(det(r)^2))
+% r = [J(:,2) J(:,3)];
+% disp(simplify(det(r)^2))
+
+%% Find analytical solution
+D1 = simplify(det([J(:,1) J(:,3)]));
+D2 = simplify(det([J(:,2) J(:,3)]));
+eq1 = D1 == 0;
+eq2 = D2 == 0;
+S = solve(eq1,eq2,g1,g2,"Real",true,"PrincipalValue",false);
+sol = [S.g1; S.g2; g3];
 
 %% Test
 g = [60; 0; 120]*pi/180;
