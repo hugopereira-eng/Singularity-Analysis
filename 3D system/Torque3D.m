@@ -10,7 +10,7 @@ addpath("..\funcs\")
 h0 = 1;                 % Angular momentum of each CMG
 beta = 54.73*pi/180;    % Pyramid skew angle
 
-%% Torque envelope - 2D
+%% Torque envelope - 3D
 
 % Roof array
 % g = [pi/2;0;0;-pi/2];      % Rank-1
@@ -19,11 +19,11 @@ beta = 54.73*pi/180;    % Pyramid skew angle
 % J = RoofJacobian(g,h0);
 
 % Pyramid array
-% g = [pi/2;pi;3*pi/2;0];      % Rank-2
-g = [0;0;0;0];             % Rank-3
+% g = [pi/2;pi;pi/2;0];           % Rank-2
+g = [pi/2;pi/4;pi/4;pi/2];      % Rank-3
 J = PyramidJacobian(g,h0,beta);
 
-samples = 10;
+samples = 40;
 gr1 = linspace(-1.5,1.5,samples);
 gr2 = linspace(-1.5,1.5,samples);
 gr3 = linspace(-1.5,1.5,samples);
@@ -47,19 +47,22 @@ L = sqrt(length(hDot));
 C = sqrt(hDot(1,:).^2+hDot(2,:).^2+hDot(3,:).^2);
 scatter3(hDot(1,:),hDot(2,:),hDot(3,:),10,reshape(C,1,L^2),'fill')
 hxl = xlabel('$$\dot{h}_x/h_0$$ [$$s^{-1}$$]','Interpreter','latex','FontSize',15);
-hxl.Position=[4 -1 -8];
+hxl.Position=[5 -1 -10];
 hyl = ylabel('$$\dot{h}_y/h_0$$ [$$s^{-1}$$]','Interpreter','latex','FontSize',15);
-hyl.Position=[-5 2.5 -5.5];
+hyl.Position=[-6.5 3.5 -7];
+hzl = zlabel('$$\dot{h}_z/h_0$$ [$$s^{-1}$$]','Interpreter','latex','FontSize',15);
 zlabel('$$\dot{h}_z/h_0$$ [$$s^{-1}$$]','Interpreter','latex','FontSize',15)
 title('Torque envelope','FontSize',15)
 % subtitle('Roof array','FontSize',12)
-subtitle('Pyramid array','FontSize',12)
+% subtitle('Pyramid array','FontSize',12)
+% subtitle('Singular configuration','FontSize',12)
+subtitle('Non-singular configuration','FontSize',12)
 grid off
 box off
 axis square
-xlim([-4 4])
-ylim([-4 4])
-zlim([-4 4])
+xlim([-5 5])
+ylim([-5 5])
+zlim([-5 5])
 c = colorbar;
 c.Label.String = 'Magnitude';
 c.Label.FontSize = 12;

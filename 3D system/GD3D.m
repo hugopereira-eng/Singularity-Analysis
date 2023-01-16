@@ -36,8 +36,8 @@ surf(G1s,G2s,Ds)
 xlabel('$\gamma_1$ [rad]','Interpreter','latex','FontSize',15);
 ylabel('$\gamma_2$ [rad]','Interpreter','latex','FontSize',15);
 zlabel('$\det$(JJ$^T$)','Interpreter','latex','FontSize',15);
-title('Determinant visualization','Interpreter','latex','FontSize',15);
-subtitle('$\gamma_3 = \gamma_4 = 0$','Interpreter','latex','FontSize',15);
+title('Determinant','Interpreter','latex','FontSize',15);
+subtitle('$\gamma_3 = 0~;~\gamma_4 = 0$','Interpreter','latex','FontSize',15);
 xlim([-pi pi])
 ylim([-pi pi])
 grid off

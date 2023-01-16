@@ -19,8 +19,8 @@ beta = 54.73*pi/180;    % Pyramid skew angle
 % J = RoofJacobian(g,h0);
 
 % Pyramid array
-% g = [pi/2;pi;3*pi/2;0];      % Rank-2
-g = [0;0;0;0];             % Rank-3
+g = [pi/2;pi;pi/2;0];           % Rank-2
+% g = [pi/2;pi/4;pi/4;pi/2];      % Rank-3
 J = PyramidJacobian(g,h0,beta);
 
 % SVD
@@ -53,12 +53,14 @@ figure
 
 mesh(Xs,Ys,Zs,C);
 
-xlabel('$$x$$ axis','Interpreter','latex','FontSize',15)
-ylabel('$$y$$ axis','Interpreter','latex','FontSize',15)
-zlabel('$$z$$ axis','Interpreter','latex','FontSize',15)
-title('Principal Components Visualization','FontSize',15)
+xlabel('$$x$$-axis','Interpreter','latex','FontSize',15)
+ylabel('$$y$$-axis','Interpreter','latex','FontSize',15)
+zlabel('$$z$$-axis','Interpreter','latex','FontSize',15)
+title('Principal components visualization','FontSize',15)
 % subtitle('Roof array','FontSize',12)
-subtitle('Pyramid array','FontSize',12)
+% subtitle('Pyramid array','FontSize',12)
+% subtitle('Singular configuration','FontSize',12)
+subtitle('Singular configuration','FontSize',12)
 grid off
 box off
 axis square
