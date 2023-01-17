@@ -8,19 +8,38 @@ addpath("..\funcs\")
 
 %% Parameters
 h0 = 1;                 % Angular momentum of each CMG
-beta = 54.73*pi/180;    % Pyramid skew angle
 
 %% Symbolic expression
 g1 = sym('g1', 'real');
 g2 = sym('g2', 'real');
 g3 = sym('g3', 'real');
 g4 = sym('g4', 'real');
+beta = sym('beta', 'real');
 g = [g1,g2,g3,g4];  
 J = PyramidJacobian(g,h0,beta);
 % J = RoofJacobian(g,h0);
 disp(simplify(det(J*J')))
-r = [J(:,1) J(:,2) J(:,3)];
-disp(simplify(det(r)^2))
+% r = [J(:,1) J(:,2) J(:,3)];
+% disp(simplify(det(r)^2))
+
+%% Analytical solution
+D1 = sin(beta)*(sin(g3)*sin(g4)*cos(g1) + cos(g3)*sin(g4)*sin(g1) + ...
+    cos(beta)*(cos(g3)*cos(g4)*sin(g1) - sin(g3)*cos(g4)*cos(g1)) + ...
+    2*cos(beta)^2*cos(g3)*cos(g4)*cos(g1));
+
+D2 = sin(beta)*(sin(g2)*sin(g3)*cos(g4) + cos(g2)*sin(g3)*sin(g4) + ...
+    cos(beta)*(cos(g2)*cos(g3)*sin(g4) - sin(g2)*cos(g3)*cos(g4)) + ...
+    2*cos(beta)^2*cos(g2)*cos(g3)*cos(g4));
+
+eq1 = D1 == 0;
+eq2 = D2 == 0;
+% S = solve(eq1,eq2,g1,g2,"Real",true,"PrincipalValue",false,"ReturnConditions",true);
+S = solve(eq1,eq2,g1,g2,"Real",true,"PrincipalValue",false);
+disp(vpa(simplify(S.g1),5))
+disp(vpa(simplify(S.g2),5))
+
+%% Parameters
+beta = 54.73*pi/180;    % Pyramid skew angle
 
 %% Test 
 g = [90; 45; 45; 90]*pi/180;
@@ -28,176 +47,151 @@ J = PyramidJacobian(g,h0,beta);
 % J = RoofJacobian(g,h0);
 fprintf("Determinant: %d \n",det(J*J'));
 
-%% Singular momentum space
+%% Gamma - Solve equations
 g1 = sym('g1', 'real');
 g2 = sym('g2', 'real');
-g3 = linspace(-pi,pi,10);
-g4 = linspace(-pi,pi,10);
-s = [];
+
+n = 10;
+g3 = linspace(-pi,pi,n);
+% g4 = linspace(-pi,pi,n);
+g4 = 180*pi/180;
+s1 = []; s2 = []; g3Plot = []; g4Plot = [];
 for i3 = 1:length(g3)
     for i4 = 1:length(g4)
-        D1 = sin(beta)*(sin(g2)*sin(g3(i3))*cos(g4(i4)) + cos(g2)*sin(g3(i3))*sin(g4(i4)) + ...
-            cos(beta)*(cos(g2)*cos(g3(i3))*sin(g4(i4)) - sin(g2)*cos(g3(i3))*cos(g4(i4))) + ...
-            2*cos(beta)^2*cos(g2)*cos(g3(i3))*cos(g4(i4)));
-        
-        D2 = sin(beta)*(sin(g3(i3))*sin(g4(i4))*cos(g1) + cos(g3(i3))*sin(g4(i4))*sin(g1) + ...
-            cos(beta)*(cos(g3(i3))*cos(g4(i4))*sin(g1) - sin(g3(i3))*cos(g4(i4))*cos(g1)) + ...
-            2*cos(beta)^2*cos(g3(i3))*cos(g4(i4))*cos(g1));
+        D1 = sin(beta)*(sin(g3(i3))*sin(g4(i4))*cos(g1) + cos(g3(i3))*sin(g4(i4))*sin(g1) + ...
+        cos(beta)*(cos(g3(i3))*cos(g4(i4))*sin(g1) - sin(g3(i3))*cos(g4(i4))*cos(g1)) + ...
+        2*cos(beta)^2*cos(g3(i3))*cos(g4(i4))*cos(g1));
+        D2 = sin(beta)*(sin(g2)*sin(g3(i3))*cos(g4(i4)) + cos(g2)*sin(g3(i3))*sin(g4(i4)) + ...
+        cos(beta)*(cos(g2)*cos(g3(i3))*sin(g4(i4)) - sin(g2)*cos(g3(i3))*cos(g4(i4))) + ...
+        2*cos(beta)^2*cos(g2)*cos(g3(i3))*cos(g4(i4)));    
         eq1 = D1 == 0;
         eq2 = D2 == 0;
-        [solg1,solg2] = solve(eq1,eq2,g1,g2);
-        s1 = [double(solg1(1)) double(solg1(2)) double(solg1(3)) double(solg1(4))];
-        s2 = [double(solg2(1)) double(solg2(2)) double(solg1(3)) double(solg1(4))];
-        s = [s [s1; s2]];    
+        S = solve(eq1,eq2,g1,g2);
+        s1 = [s1 real(double(S.g1))];
+        s2 = [s2 real(double(S.g2))];
+        g3Plot = [g3Plot g3(i3)];
+        g4Plot = [g4Plot g4(i4)];
     end
-end
-
-%% Plot: singular momentum space
-h_t = [];
-g32 = [];
-for i = 1:10
-    for j = 1:10
-        g32 = [g32 [g3(i); g4(j)]];
-    end
-end
-for i = 1:100
-    g = [s(1,4*i-3),s(2,4*i-3),g32(1,i),g32(2,i)];
-    h = compute_h(h0, beta, g);
-    h_t = [h_t h];
-end
-for i = 1:100
-    g = [s(1,4*i-2),s(2,4*i-2),g32(1,i),g32(2,i)];
-    h = compute_h(h0, beta, g);
-    h_t = [h_t h];
-end
-C = real(sqrt(h_t(1,:).^2+h_t(2,:).^2+h_t(3,:).^2));
-figure
-scatter3(h_t(1,:),h_t(2,:),h_t(3,:), 10, C, 'fill')
-c = colorbar;
-colormap default;
-c.Label.String = 'Magnitude |h|';
-xlabel('$\dot{h}_x$ [Nms]','Interpreter','latex','FontSize',15);
-ylabel('$\dot{h}_y$ [Nms]','Interpreter','latex','FontSize',15);
-zlabel('$\dot{h}_z$ [Nms]','Interpreter','latex','FontSize',15);
-title('Singular momentum space','Interpreter','latex','FontSize',15);
-subtitle('Pyramid array','FontSize',12);
-xlim([-pi pi])
-ylim([-pi pi])
-zlim([-pi pi])
-grid off
-axis equal
-
-%% Gamma
-g1 = sym('g1', 'real');
-g2 = sym('g2', 'real');
-
-n = 1000;
-g3 = linspace(-pi,pi,n);
-g4 = 0*pi/180;
-s = [];
-for i3 = 1:length(g3)
-    D1 = sin(beta)*(sin(g2)*sin(g3(i3))*cos(g4) + cos(g2)*sin(g3(i3))*sin(g4) + ...
-        cos(beta)*(cos(g2)*cos(g3(i3))*sin(g4) - sin(g2)*cos(g3(i3))*cos(g4)) + ...
-        2*cos(beta)^2*cos(g2)*cos(g3(i3))*cos(g4));
-    
-    D2 = sin(beta)*(sin(g3(i3))*sin(g4)*cos(g1) + cos(g3(i3))*sin(g4)*sin(g1) + ...
-        cos(beta)*(cos(g3(i3))*cos(g4)*sin(g1) - sin(g3(i3))*cos(g4)*cos(g1)) + ...
-        2*cos(beta)^2*cos(g3(i3))*cos(g4)*cos(g1));
-    eq1 = D1 == 0;
-    eq2 = D2 == 0;
-    [solg1,solg2] = solve(eq1,eq2,g1,g2);
-    s1 = [double(solg1(1)) double(solg1(2)) double(solg1(3)) double(solg1(4))];
-    s2 = [double(solg2(1)) double(solg2(2)) double(solg1(3)) double(solg1(4))];
-    s = real([s [s1; s2]]);
     disp(i3)
 end
 
-%% Plot - Gamma plot
+%% Gamma - Use solutions
+n3 = 100;
+n4 = 100;
+g3v = linspace(-pi,pi,n3);
+% g4v = linspace(-pi,pi,n4);
+g4v = 0*pi/180;
+s1 = []; s2 = []; 
+g3Plot = []; g4Plot = [];
+t1 = S.g1(1);
+t2 = S.g2(1);
+for j1 = 1:length(S.g1)
+    t1 = S.g1(j1);
+    for j2 = 1:length(S.g2)
+        t2 = S.g2(j2);
+        for i4 = 1:length(g4v)
+            g4 = g4v(i4);
+            for i3 = 1:length(g3v)
+                g3 = g3v(i3);
+                g1 = subs(t1);
+                g2 = subs(t2);
+                s1 = [s1 real(double(g1))];
+                s2 = [s2 real(double(g2))];
+                g3Plot = [g3Plot g3v(i3)];
+                g4Plot = [g4Plot g4v(i4)];
+            end
+        end
+        disp(j2)
+    end
+end
 
+%% Plot - Gamma plot (g1)
 figure
-g1 = s(1,1:4:end);
-g2 = s(2,1:4:end);
-scatter3(g1,g2,g3, 10,'fill','b')
+g1Plot = s1;
+C = sqrt(g1Plot.^2+g3Plot.^2+g4Plot.^2);
+scatter3(g1Plot,g3Plot,g4Plot,10,C,'fill')
 hold on
-g1 = s(1,2:4:end);
-g2 = s(2,2:4:end);
-scatter3(g1,g2,g3, 10,'fill','b')
-hold on
-g1 = s(1,3:4:end);
-g2 = s(2,3:4:end);
-scatter3(g1,g2,g3, 10,'fill','b')
-hold on
-g1 = s(1,4:4:end);
-g2 = s(2,4:4:end);
-scatter3(g1,g2,g3, 10,'fill','b')
-hold on
-plotcube([2*pi 2*pi 2*pi],[-pi -pi -pi],0,[0 0 1]);
+PlotCube([2*pi 2*pi 2*pi],[-pi -pi -pi],0,[0 0 1]);
 xlabel('$\gamma_1$ [rad]','Interpreter','latex','FontSize',15);
-ylabel('$\gamma_2$ [rad]','Interpreter','latex','FontSize',15);
-zlabel('$\gamma_3$ [rad]','Interpreter','latex','FontSize',15);
-title('Singularity envelope ($\gamma_4 = \pi/2$)','Interpreter','latex','FontSize',15);
-subtitle('Pyramid array','FontSize',12);
+ylabel('$\gamma_3$ [rad]','Interpreter','latex','FontSize',15);
+zlabel('$\gamma_4$ [rad]','Interpreter','latex','FontSize',15);
+title('Singularity envelope','Interpreter','latex','FontSize',15);
+subtitle('Without CMG \#2','Interpreter','latex','FontSize',12);
 xlim([-pi pi])
 ylim([-pi pi])
 zlim([-pi pi])
 grid off
 axis equal
 box on
-% view(335,20)
-% view(70,30)
-% view(0,0)
-% view(90,0)
-% view(0,90)
+% view(155,20)
+view(335,20)
 
-%%
+%% Plot - Gamma plot (g2)
+figure
+g2Plot = s2;
+C = sqrt(g2Plot.^2+g3Plot.^2+g4Plot.^2);
+scatter3(g2Plot,g3Plot,g4Plot,10,C,'fill')
+hold on
+PlotCube([2*pi 2*pi 2*pi],[-pi -pi -pi],0,[0 0 1]);
+xlabel('$\gamma_2$ [rad]','Interpreter','latex','FontSize',15);
+ylabel('$\gamma_3$ [rad]','Interpreter','latex','FontSize',15);
+zlabel('$\gamma_4$ [rad]','Interpreter','latex','FontSize',15);
+title('Singularity envelope','Interpreter','latex','FontSize',15);
+subtitle('Without CMG \#1','Interpreter','latex','FontSize',12);
+xlim([-pi pi])
+ylim([-pi pi])
+zlim([-pi pi])
+grid off
+axis equal
+box on
+% view(155,20)
+view(335,20)
 
+%% Plot - Gamma plot (g4 fixed)
+figure
+g1Plot = s1;
+g2Plot = s2;
+scatter3(g1Plot,g2Plot,g3Plot, 10,'fill','b')
 hold on
-g1 = s90(1,1:4:end);
-g2 = s90(2,1:4:end);
-scatter3(g1,g2,g3, 10,'fill','m')
-hold on
-g1 = s90(1,2:4:end);
-g2 = s90(2,2:4:end);
-scatter3(g1,g2,g3, 10,'fill','m')
-hold on
-g1 = s90(1,3:4:end);
-g2 = s90(2,3:4:end);
-scatter3(g1,g2,g3, 10,'fill','m')
-hold on
-g1 = s90(1,4:4:end);
-g2 = s90(2,4:4:end);
-scatter3(g1,g2,g3, 10,'fill','m')
+PlotCube([2*pi 2*pi 2*pi],[-pi -pi -pi],0,[0 0 1]);
+xlabel('$\gamma_1$ [rad]','Interpreter','latex','FontSize',15);
+ylabel('$\gamma_2$ [rad]','Interpreter','latex','FontSize',15);
+zlabel('$\gamma_3$ [rad]','Interpreter','latex','FontSize',15);
+title('Singularity envelope','Interpreter','latex','FontSize',15);
+subtitle('$\gamma_4 = 135^{\circ}$','Interpreter','latex','FontSize',12);
+xlim([-pi pi])
+ylim([-pi pi])
+zlim([-pi pi])
+grid off
+axis equal
+box on
+view(335,20)
 
-hold on
-g1 = s120(1,1:4:end);
-g2 = s120(2,1:4:end);
-scatter3(g1,g2,g3, 10,'fill','k')
-hold on
-g1 = s120(1,2:4:end);
-g2 = s120(2,2:4:end);
-scatter3(g1,g2,g3, 10,'fill','k')
-hold on
-g1 = s120(1,3:4:end);
-g2 = s120(2,3:4:end);
-scatter3(g1,g2,g3, 10,'fill','k')
-hold on
-g1 = s120(1,4:4:end);
-g2 = s120(2,4:4:end);
-scatter3(g1,g2,g3, 10,'fill','k')
+%% Plot - Gamma plot (colormap) as a function of g4
+figure
+for j = n4/2:n4
+    g1Plot = []; g2Plot = []; g3Plot_ = [];
+    for i = 1:16
+        g1Plot  = [g1Plot  s1((n3*(j-1)+1+n3*n4*(i-1)):(n3*j+n3*n4*(i-1)))];
+        g2Plot  = [g2Plot  s2((n3*(j-1)+1+n3*n4*(i-1)):(n3*j+n3*n4*(i-1)))];
+        g3Plot_ = [g3Plot_ g3Plot((n3*(j-1)+1+n3*n4*(i-1)):(n3*j+n3*n4*(i-1)))]; 
+    end
+    C = ones(16*n3,1)*g4v(j);
+    scatter3(g1Plot,g2Plot,g3Plot_,10,C,'fill')
+    hold on
+end
+PlotCube([2*pi 2*pi 2*pi],[-pi -pi -pi],0,[0 0 1]);
+xlabel('$\gamma_1$ [rad]','Interpreter','latex','FontSize',15);
+ylabel('$\gamma_2$ [rad]','Interpreter','latex','FontSize',15);
+zlabel('$\gamma_3$ [rad]','Interpreter','latex','FontSize',15);
+title('Singularity envelope','Interpreter','latex','FontSize',15);
+subtitle('$\gamma_4 \in [0,\pi]$','Interpreter','latex','FontSize',12);
+xlim([-pi pi])
+ylim([-pi pi])
+zlim([-pi pi])
+grid off
+axis equal
+box on
+colorbar
+view(335,20)
 
-hold on
-g1 = s110(1,1:4:end);
-g2 = s110(2,1:4:end);
-scatter3(g1,g2,g3, 10,'fill','r')
-hold on
-g1 = s110(1,2:4:end);
-g2 = s110(2,2:4:end);
-scatter3(g1,g2,g3, 10,'fill','r')
-hold on
-g1 = s110(1,3:4:end);
-g2 = s110(2,3:4:end);
-scatter3(g1,g2,g3, 10,'fill','r')
-hold on
-g1 = s110(1,4:4:end);
-g2 = s110(2,4:4:end);
-scatter3(g1,g2,g3, 10,'fill','r')
