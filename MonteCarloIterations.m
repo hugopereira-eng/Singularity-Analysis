@@ -26,14 +26,14 @@ G = zeros(4,samples);
 ind = 0;
 for i = 1:samples
     G(:,i) = [-pi + 2*pi*rand;
-                -pi + 2*pi*rand;
-                -pi + 2*pi*rand;
-                -pi + 2*pi*rand];
+              -pi + 2*pi*rand;
+              -pi + 2*pi*rand;
+              -pi + 2*pi*rand];
 end
 
 %% Gradient descent
 alpha = 0.1;         % learning rate
-sigma = 0.001;       % Standard deviation (perturbations)
+sigma = 0.091;       % Standard deviation (perturbations)
 I = zeros(1,samples);
 hbar = waitbar(0,'Simulation Progress');
 for i = 1:length(G)
