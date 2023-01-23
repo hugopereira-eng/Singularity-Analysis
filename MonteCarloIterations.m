@@ -13,53 +13,44 @@ beta = 54.73*pi/180;    % Pyramid skew angle
 %% Gradient
 g = sym('g',[4 1]);
 J = PyramidJacobian(g,h0,beta);
-eq = det(J*J');
-Dg1 = diff(eq,g(1));
-Dg2 = diff(eq,g(2));
-Dg3 = diff(eq,g(3));
-Dg4 = diff(eq,g(4));
+D = simplify(det(J*J'));
+G = gradient(D);
+H = hessian(D);
 
 %% Random set
 % Uniformly generated samples
-samples = 1000;
-G = zeros(4,samples);
+samples = 5;
+S = zeros(4,samples);
 ind = 0;
 for i = 1:samples
-    G(:,i) = [-pi + 2*pi*rand;
+    S(:,i) = [-pi + 2*pi*rand;
               -pi + 2*pi*rand;
               -pi + 2*pi*rand;
               -pi + 2*pi*rand];
 end
 
-%% Gradient descent
-alpha = 0.1;         % learning rate
-sigma = 0.091;       % Standard deviation (perturbations)
+%% Newton
 I = zeros(1,samples);
 hbar = waitbar(0,'Simulation Progress');
-for i = 1:length(G)
-    g1 = G(1,i); g2 = G(2,i); g3 = G(3,i); g4 = G(4,i);
-    J = PyramidJacobian([g1 g2 g3 g4],h0,beta);
+for i = 1:length(S)
+    g = S(:,i);
+    g1 = g(1); g2 = g(2); g3 = g(3); g4 = g(4);
+    J = PyramidJacobian(g,h0,beta);
     D = det(J*J');
     iterations = 0;
     while D(iterations+1) > 10e-3
+        g = [g1;g2;g3;g4];
         % Update
-        t1 = g1 - alpha*double(subs(Dg1));
-        t2 = g2 - alpha*double(subs(Dg2));
-        t3 = g3 - alpha*double(subs(Dg3));
-        t4 = g4 - alpha*double(subs(Dg4));
-        % Add perturbation - generated from a Gaussian distribution
-        g1 = t1 + normrnd(0,sigma); 
-        g2 = t2 + normrnd(0,sigma);
-        g3 = t3 + normrnd(0,sigma); 
-        g4 = t4 + normrnd(0,sigma);
-        
-        J = PyramidJacobian([g1 g2 g3 g4],h0,beta);
+        g = g - (double(subs(H))+diag([0.1 0.1 0.1 0.1]))\double(subs(G));
+       
+        J = PyramidJacobian(g,h0,beta);
         D = [D det(J*J')];
-
+        
+        g1 = g(1); g2 = g(2); g3 = g(3); g4 = g(4);
         iterations = iterations + 1;
     end
     I(i) = iterations;
-    waitbar(i/length(G), hbar);
+    waitbar(i/length(S), hbar);
     disp(i)
 end
 close(hbar)
